@@ -45,6 +45,10 @@ AI-created tasks from Superhuman Go surface instantly in the macOS notch — no 
 - **Speed**: Hackathon build — 1-2 phases max, no over-engineering
 - **macOS only**: No iOS/iPadOS target needed
 - **UserDefaults**: Simple persistence for demo; data model must be compatible with future Codable struct from Superhuman Go
+- **Xcode project management**: New Swift files must be added to the `.xcodeproj` via `ruby` scripting (xcodeproj gem) or direct `project.pbxproj` editing — files on disk alone won't compile. Plans must include explicit file registration steps.
+- **Build toolchain**: App is built and run via `xcodebuild` or Xcode IDE. Plans must include a build verification step (`xcodebuild build` against the Peninsula scheme) to confirm the app compiles after each change.
+- **Entitlements & signing**: Peninsula requires Accessibility entitlement; any new code must not break the existing entitlements/signing setup.
+- **Dependencies**: Peninsula uses Swift Package Manager (LaunchAtLogin, etc.) — new code must not introduce CocoaPods or Carthage.
 
 ## Key Decisions
 
@@ -55,4 +59,4 @@ AI-created tasks from Superhuman Go surface instantly in the macOS notch — no 
 | UserDefaults with Codable TodoItem struct | Simple, fast, easy to swap for network layer later | — Pending |
 
 ---
-*Last updated: 2026-03-17 after initialization*
+*Last updated: 2026-03-17 after adding Xcode build constraints*
