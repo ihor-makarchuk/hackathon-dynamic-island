@@ -23,17 +23,9 @@ struct NotchCompositeView: View {
         VStack(alignment: .center, spacing: vm.spacing) {
             HeaderView(headline: headline, menubar: menubar)
                 .animation(vm.normalAnimation, value: galleryModel.currentItem)
-            TodoPlaceholderView()
+            TodoView()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .transition(.blurReplace)
-    }
-}
-
-struct TodoPlaceholderView: View {
-    var body: some View {
-        Text("Todo coming soon")
-            .foregroundColor(.secondary)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
