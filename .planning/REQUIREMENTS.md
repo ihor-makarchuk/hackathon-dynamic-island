@@ -65,18 +65,18 @@
 | NOTCH-01 | Phase 1 | Pending |
 | NOTCH-02 | Phase 1 | Pending |
 | NOTCH-03 | Phase 1 | Pending |
-| TODO-01 | Phase 1 | Pending |
-| TODO-02 | Phase 1 | Pending |
-| TODO-03 | Phase 1 | Pending |
-| TODO-04 | Phase 1 | Pending |
-| TODO-05 | Phase 1 | Pending |
-| TODO-06 | Phase 1 | Pending |
-| INPUT-01 | Phase 1 | Pending |
-| INPUT-02 | Phase 1 | Pending |
-| INPUT-03 | Phase 1 | Pending |
-| STORE-01 | Phase 1 | Pending |
 | STORE-02 | Phase 1 | Pending |
-| STORE-03 | Phase 1 | Pending |
+| TODO-01 | Phase 2 | Pending |
+| TODO-02 | Phase 2 | Pending |
+| TODO-03 | Phase 2 | Pending |
+| TODO-04 | Phase 2 | Pending |
+| TODO-05 | Phase 2 | Pending |
+| TODO-06 | Phase 2 | Pending |
+| INPUT-01 | Phase 2 | Pending |
+| INPUT-02 | Phase 2 | Pending |
+| INPUT-03 | Phase 2 | Pending |
+| STORE-01 | Phase 2 | Pending |
+| STORE-03 | Phase 2 | Pending |
 
 **Coverage:**
 - v1 requirements: 15 total
@@ -85,4 +85,4 @@
 
 ---
 *Requirements defined: 2026-03-17*
-*Last updated: 2026-03-17 after initial definition*
+*Last updated: 2026-03-17 after roadmap creation*
