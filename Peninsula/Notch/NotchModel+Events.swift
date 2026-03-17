@@ -47,7 +47,7 @@ extension NotchModel {
             if !self.isKeyboardTriggered {
                 self.state = .interWindows
                 self.initPointer(pointer: 1)
-                self.notchOpen(galleryItem: .searching)
+                self.notchOpen(galleryItem: .todo)
             } else {
                 self.notchClose()
             }
@@ -80,11 +80,11 @@ extension NotchModel {
                     if fasterSwitch {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self] in
                             if self?.state == triggeredState {
-                                self?.notchOpen(galleryItem: .switching)
+                                self?.notchOpen(galleryItem: .todo)
                             }
                         }
                     } else {
-                        notchOpen(galleryItem: .switching)
+                        notchOpen(galleryItem: .todo)
                     }
                 case .forward:
                     incrementPointer()

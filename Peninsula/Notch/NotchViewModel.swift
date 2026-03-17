@@ -43,24 +43,7 @@ class NotchViewModel: NSObject, ObservableObject {
     let innerOffAnimation: Animation = .interactiveSpring(duration: 0.236)
 
     var notchOpenedSize: CGSize {
-        switch galleryModel.currentItem {
-        case .switching:
-            let visibleCount = max(0, notchModel.pageEnd - notchModel.pageStart)
-            return .init(
-                width: 600,
-                height: CGFloat(visibleCount) * SwitchContentView.HEIGHT
-                    + deviceNotchRect.height + spacing * CGFloat(3) + 1
-            )
-        case .searching:
-            let visibleCount = max(0, notchModel.pageEnd - notchModel.pageStart)
-            return .init(
-                width: 600,
-                height: CGFloat(visibleCount) * SwitchContentView.HEIGHT
-                    + deviceNotchRect.height + SwitchSearchView.LINEHEIGHT + spacing * CGFloat(4) + 1
-            )
-        default:
-            return .init(width: 600, height: 200 + 1)
-        }
+        return .init(width: 600, height: 200 + 1)
     }
     let dropDetectorRange: CGFloat = 32
 
@@ -169,9 +152,7 @@ class NotchViewModel: NSObject, ObservableObject {
     }
 
     var header: String {
-        galleryModel.currentItem == .settings
-            ? "Version: \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown") (Build: \(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"))"
-            : "Peninsula"
+        "Peninsula"
     }
 
     @ObservedObject var galleryModel = GalleryModel.shared

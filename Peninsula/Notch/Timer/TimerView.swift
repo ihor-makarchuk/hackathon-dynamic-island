@@ -203,7 +203,7 @@ class TimerAbstractInstance: LiveItem {
             TimerAbstractView(timerViewModel: timerViewModel, circleWidth: notchViewModel.deviceNotchRect.height * 0.8)
         }
         self.action = { notchViewModel in
-            notchViewModel.notchOpen(galleryItem: .timer)
+            notchViewModel.notchOpen(galleryItem: .todo)
         }
     }
 }

@@ -191,7 +191,7 @@ class DockModel: ObservableObject {
                         ).aspectRatio(contentMode: .fit)
                     },
                     action: { (notchViewModel: NotchViewModel) in
-                        notchViewModel.notchOpen(galleryItem: .notification)
+                        notchViewModel.notchOpen(galleryItem: .todo)
                     }
                 ))
             } else {

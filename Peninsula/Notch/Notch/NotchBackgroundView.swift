@@ -42,8 +42,7 @@ struct NotchBackgroundView: View {
                                 height: notchViewModel.deviceNotchRect.height
                             )
                             .onTapGesture {
-                                galleryModel.next()
-                                print("next", galleryModel.currentItem)
+                                // single gallery item — no navigation needed
                             }
                     }
                 },
