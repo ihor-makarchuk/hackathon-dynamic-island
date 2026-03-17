@@ -26,7 +26,9 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Moving the mouse away from the notch collapses it back to the bar
   3. No Peninsula gallery tabs appear — only the todo panel slot is rendered
   4. TodoItem Codable struct compiles with id, title, priority, isDone, createdAt fields
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 01-01-PLAN.md — Clone Peninsula, gut gallery to single .todo case, create TodoItem Codable struct
 
 ### Phase 2: Todo UI
 **Goal**: Users can view, add, complete, and delete todo items that survive app relaunches
@@ -47,5 +49,5 @@ Phases execute in numeric order: 1 → 2
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Shell | 0/TBD | Not started | - |
+| 1. Shell | 0/1 | Planning complete | - |
 | 2. Todo UI | 0/TBD | Not started | - |
