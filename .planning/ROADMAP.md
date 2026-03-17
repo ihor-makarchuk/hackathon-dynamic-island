@@ -12,7 +12,7 @@ Fork Peninsula, gut the gallery views, replace with a single TodoView. Phase 1 e
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Shell** - Peninsula gallery gutted; notch expands/collapses with a single TodoView placeholder wired in
+- [x] **Phase 1: Shell** - Peninsula gallery gutted; notch expands/collapses with a single TodoView placeholder wired in (completed 2026-03-17)
 - [ ] **Phase 2: Todo UI** - Full todo list with display, input, and UserDefaults persistence
 
 ## Phase Details
@@ -26,7 +26,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Moving the mouse away from the notch collapses it back to the bar
   3. No Peninsula gallery tabs appear — only the todo panel slot is rendered
   4. TodoItem Codable struct compiles with id, title, priority, isDone, createdAt fields
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
 - [ ] 01-01-PLAN.md — Clone Peninsula, gut gallery to single .todo case, create TodoItem Codable struct
 
@@ -49,5 +49,5 @@ Phases execute in numeric order: 1 → 2
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Shell | 0/1 | Planning complete | - |
+| 1. Shell | 1/1 | Complete   | 2026-03-17 |
 | 2. Todo UI | 0/TBD | Not started | - |

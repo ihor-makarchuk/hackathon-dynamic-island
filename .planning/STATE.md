@@ -1,3 +1,19 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: planning
+stopped_at: Completed 01-shell-01-01-PLAN.md
+last_updated: "2026-03-17T21:51:56.660Z"
+last_activity: 2026-03-17 — Roadmap created
+progress:
+  total_phases: 2
+  completed_phases: 1
+  total_plans: 1
+  completed_plans: 1
+  percent: 100
+---
+
 # Project State
 
 ## Project Reference
@@ -14,7 +30,7 @@ Plan: 0 of TBD in current phase
 Status: Ready to plan
 Last activity: 2026-03-17 — Roadmap created
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -34,6 +50,7 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: -
 
 *Updated after each plan completion*
+| Phase 01-shell P01 | 7min | 3 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -45,6 +62,9 @@ Recent decisions affecting current work:
 - Fork Peninsula, gut gallery views — fastest path to working notch UI
 - Single `todo` gallery item replaces all tabs — no navigation complexity needed
 - UserDefaults with Codable TodoItem struct — simple, swappable for network layer later
+- [Phase 01-shell]: Xcode 16 PBXFileSystemSynchronizedRootGroup auto-discovers Peninsula/Todo/TodoItem.swift — no xcodeproj gem registration needed
+- [Phase 01-shell]: GalleryItem.next() removed entirely since only one item exists — NotchBackgroundView tap gesture becomes no-op
+- [Phase 01-shell]: Rule 3 auto-fixes applied to 7 files referencing removed GalleryItem cases — all replaced with .todo or EmptyView stubs to restore compilation
 
 ### Pending Todos
 
@@ -56,6 +76,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-17
-Stopped at: Roadmap created; ready to plan Phase 1
+Last session: 2026-03-17T21:51:56.657Z
+Stopped at: Completed 01-shell-01-01-PLAN.md
 Resume file: None

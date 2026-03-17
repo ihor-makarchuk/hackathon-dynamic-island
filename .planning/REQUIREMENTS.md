@@ -7,9 +7,9 @@
 
 ### Notch Shell
 
-- [ ] **NOTCH-01**: Notch expands on hover using Peninsula's existing animation and hover detection logic
-- [ ] **NOTCH-02**: Notch collapses when mouse leaves the notch area
-- [ ] **NOTCH-03**: Peninsula's window management and display code is preserved (no regression)
+- [x] **NOTCH-01**: Notch expands on hover using Peninsula's existing animation and hover detection logic
+- [x] **NOTCH-02**: Notch collapses when mouse leaves the notch area
+- [x] **NOTCH-03**: Peninsula's window management and display code is preserved (no regression)
 
 ### Todo Display
 
@@ -29,7 +29,7 @@
 ### Persistence
 
 - [ ] **STORE-01**: Todo items persist across app relaunches via UserDefaults
-- [ ] **STORE-02**: TodoItem is a Codable struct with fields: id (UUID), title (String), priority (enum: high/normal/low), isDone (Bool), createdAt (Date)
+- [x] **STORE-02**: TodoItem is a Codable struct with fields: id (UUID), title (String), priority (enum: high/normal/low), isDone (Bool), createdAt (Date)
 - [ ] **STORE-03**: Adding, completing, and deleting items are immediately persisted
 
 ## v2 Requirements
@@ -62,10 +62,10 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| NOTCH-01 | Phase 1 | Pending |
-| NOTCH-02 | Phase 1 | Pending |
-| NOTCH-03 | Phase 1 | Pending |
-| STORE-02 | Phase 1 | Pending |
+| NOTCH-01 | Phase 1 | Complete |
+| NOTCH-02 | Phase 1 | Complete |
+| NOTCH-03 | Phase 1 | Complete |
+| STORE-02 | Phase 1 | Complete |
 | TODO-01 | Phase 2 | Pending |
 | TODO-02 | Phase 2 | Pending |
 | TODO-03 | Phase 2 | Pending |
