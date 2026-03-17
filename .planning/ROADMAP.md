@@ -50,4 +50,4 @@ Phases execute in numeric order: 1 → 2
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Shell | 1/1 | Complete    | 2026-03-17 |
-| 2. Todo UI | 0/TBD | Not started | - |
+| 2. Todo UI | 1/4 | In Progress|  |

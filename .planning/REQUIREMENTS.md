@@ -28,9 +28,9 @@
 
 ### Persistence
 
-- [ ] **STORE-01**: Todo items persist across app relaunches via UserDefaults
+- [x] **STORE-01**: Todo items persist across app relaunches via UserDefaults
 - [x] **STORE-02**: TodoItem is a Codable struct with fields: id (UUID), title (String), priority (enum: high/normal/low), isDone (Bool), createdAt (Date)
-- [ ] **STORE-03**: Adding, completing, and deleting items are immediately persisted
+- [x] **STORE-03**: Adding, completing, and deleting items are immediately persisted
 
 ## v2 Requirements
 
@@ -75,8 +75,8 @@
 | INPUT-01 | Phase 2 | Pending |
 | INPUT-02 | Phase 2 | Pending |
 | INPUT-03 | Phase 2 | Pending |
-| STORE-01 | Phase 2 | Pending |
-| STORE-03 | Phase 2 | Pending |
+| STORE-01 | Phase 2 | Complete |
+| STORE-03 | Phase 2 | Complete |
 
 **Coverage:**
 - v1 requirements: 15 total
