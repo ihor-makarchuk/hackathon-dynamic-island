@@ -13,18 +13,18 @@
 
 ### Todo Display
 
-- [ ] **TODO-01**: Expanded notch shows a scrollable list of todo items
-- [ ] **TODO-02**: Each item displays its title
-- [ ] **TODO-03**: Each item displays a priority badge (High / Normal / Low) with distinct visual styling
-- [ ] **TODO-04**: Each item has a checkbox; checking it applies strikethrough styling and marks item done
-- [ ] **TODO-05**: Each item has a delete button to remove it from the list
-- [ ] **TODO-06**: List is scrollable when items overflow the notch panel height
+- [x] **TODO-01**: Expanded notch shows a scrollable list of todo items
+- [x] **TODO-02**: Each item displays its title
+- [x] **TODO-03**: Each item displays a priority badge (High / Normal / Low) with distinct visual styling
+- [x] **TODO-04**: Each item has a checkbox; checking it applies strikethrough styling and marks item done
+- [x] **TODO-05**: Each item has a delete button to remove it from the list
+- [x] **TODO-06**: List is scrollable when items overflow the notch panel height
 
 ### Todo Input
 
-- [ ] **INPUT-01**: An input field at the bottom (or top) of the panel allows typing a new todo title
-- [ ] **INPUT-02**: Pressing Enter/Return adds the item to the list with Normal priority by default
-- [ ] **INPUT-03**: Input field clears after submission
+- [x] **INPUT-01**: An input field at the bottom (or top) of the panel allows typing a new todo title
+- [x] **INPUT-02**: Pressing Enter/Return adds the item to the list with Normal priority by default
+- [x] **INPUT-03**: Input field clears after submission
 
 ### Persistence
 
@@ -66,15 +66,15 @@
 | NOTCH-02 | Phase 1 | Complete |
 | NOTCH-03 | Phase 1 | Complete |
 | STORE-02 | Phase 1 | Complete |
-| TODO-01 | Phase 2 | Pending |
-| TODO-02 | Phase 2 | Pending |
-| TODO-03 | Phase 2 | Pending |
-| TODO-04 | Phase 2 | Pending |
-| TODO-05 | Phase 2 | Pending |
-| TODO-06 | Phase 2 | Pending |
-| INPUT-01 | Phase 2 | Pending |
-| INPUT-02 | Phase 2 | Pending |
-| INPUT-03 | Phase 2 | Pending |
+| TODO-01 | Phase 2 | Complete |
+| TODO-02 | Phase 2 | Complete |
+| TODO-03 | Phase 2 | Complete |
+| TODO-04 | Phase 2 | Complete |
+| TODO-05 | Phase 2 | Complete |
+| TODO-06 | Phase 2 | Complete |
+| INPUT-01 | Phase 2 | Complete |
+| INPUT-02 | Phase 2 | Complete |
+| INPUT-03 | Phase 2 | Complete |
 | STORE-01 | Phase 2 | Complete |
 | STORE-03 | Phase 2 | Complete |
 

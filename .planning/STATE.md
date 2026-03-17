@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: in-progress
-stopped_at: Phase 02-todo-ui Plan 01 complete
-last_updated: "2026-03-17T22:51:00Z"
+status: completed
+stopped_at: Completed 02-todo-ui 02-02-PLAN.md
+last_updated: "2026-03-17T22:55:44.157Z"
 last_activity: 2026-03-17 — Phase 02 Plan 01 complete
 progress:
   total_phases: 2
   completed_phases: 1
   total_plans: 5
-  completed_plans: 2
+  completed_plans: 3
   percent: 40
 ---
 
@@ -53,6 +53,7 @@ Progress: [████░░░░░░] 40%
 *Updated after each plan completion*
 | Phase 01-shell P01 | 7min | 3 tasks | 12 files |
 | Phase 02-todo-ui P01 | 1min | 2 tasks | 2 files |
+| Phase 02-todo-ui P02 | 1min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -70,6 +71,9 @@ Recent decisions affecting current work:
 - [Phase 02-todo-ui P01]: sortOrder extension co-located with Priority enum in TodoItem.swift
 - [Phase 02-todo-ui P01]: TodoStore follows GalleryModel.shared singleton pattern for consistency
 - [Phase 02-todo-ui P01]: items(for:) sorts active by priority then appends done items at bottom
+- [Phase 02-todo-ui]: Hover-visible buttons (delete, expand) reduce visual clutter in compact notch UI
+- [Phase 02-todo-ui]: notchOpenedSize height increased from 201px to 501px to fit date carousel + list + input
+- [Phase 02-todo-ui]: Priority prefix convention: '\! title' = high, '\!\! title' = low, 'title' = normal
 
 ### Pending Todos
 
@@ -81,6 +85,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-17T22:51:00Z
-Stopped at: Completed 02-todo-ui 02-01-PLAN.md
-Resume file: .planning/phases/02-todo-ui/02-02-PLAN.md
+Last session: 2026-03-17T22:55:44.155Z
+Stopped at: Completed 02-todo-ui 02-02-PLAN.md
+Resume file: None
