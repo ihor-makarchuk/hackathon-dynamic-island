@@ -3,8 +3,10 @@ import SwiftUI
 struct TodoRowView: View {
     @ObservedObject var store: TodoStore
     var item: TodoItem
+    var onToast: ((String) -> Void)?
     @State private var isHovering = false
     @State private var isExpanded = false
+    @State private var isExecuting = false
 
     private var priorityColor: Color {
         switch item.priority {
@@ -47,6 +49,41 @@ struct TodoRowView: View {
 
                 // Hover-visible buttons
                 if isHovering {
+                    // Execute with AI (only for non-done items)
+                    if !item.isDone {
+                        Button(action: {
+                            guard !isExecuting else { return }
+                            isExecuting = true
+                            Task {
+                                do {
+                                    try await CalendarAgentService.shared.createEvent(from: item)
+                                    await MainActor.run {
+                                        store.toggleDone(id: item.id)
+                                        onToast?("Calendar event created")
+                                        isExecuting = false
+                                    }
+                                } catch {
+                                    await MainActor.run {
+                                        onToast?(error.localizedDescription)
+                                        isExecuting = false
+                                    }
+                                }
+                            }
+                        }) {
+                            if isExecuting {
+                                ProgressView()
+                                    .scaleEffect(0.5)
+                                    .frame(width: 12, height: 12)
+                            } else {
+                                Image(systemName: "bolt.fill")
+                                    .foregroundColor(.yellow.opacity(0.8))
+                                    .font(.system(size: 12))
+                            }
+                        }
+                        .buttonStyle(.plain)
+                        .help("Execute with AI — create calendar event")
+                    }
+
                     // Expand/collapse arrow
                     Button(action: { withAnimation(.easeInOut(duration: 0.2)) { isExpanded.toggle() } }) {
                         Image(systemName: isExpanded ? "chevron.up" : "chevron.down")

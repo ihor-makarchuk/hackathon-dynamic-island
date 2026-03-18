@@ -25,6 +25,7 @@ struct TodoView: View {
     @State private var dropReviewState: DropReviewState = .idle
     @State private var refinementText: String = ""
     @State private var hasRefined: Bool = false
+    @State private var toastMessage: String? = nil
 
     private var displayItems: [TodoItem] {
         store.items(for: selectedDate)
@@ -41,7 +42,7 @@ struct TodoView: View {
                     ScrollView(.vertical, showsIndicators: false) {
                         LazyVStack(spacing: 2) {
                             ForEach(displayItems) { item in
-                                TodoRowView(store: store, item: item)
+                                TodoRowView(store: store, item: item, onToast: { showToast($0) })
                             }
                         }
                     }
@@ -168,8 +169,30 @@ struct TodoView: View {
                 }
             }
         }
+        .overlay(alignment: .bottom) {
+            if let toastMessage = toastMessage {
+                Text(toastMessage)
+                    .font(.system(.caption, design: .rounded))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.15)))
+                    .padding(.bottom, 8)
+                    .transition(.opacity.combined(with: .move(edge: .bottom)))
+            }
+        }
+        .animation(.easeInOut(duration: 0.25), value: toastMessage)
         .animation(.easeInOut(duration: 0.15), value: isDropTargeted)
         .animation(.easeInOut(duration: 0.2), value: dropReviewState)
+    }
+
+    // MARK: - Toast
+
+    private func showToast(_ message: String) {
+        withAnimation { toastMessage = message }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+            withAnimation { toastMessage = nil }
+        }
     }
 
     // MARK: - Review Panel
