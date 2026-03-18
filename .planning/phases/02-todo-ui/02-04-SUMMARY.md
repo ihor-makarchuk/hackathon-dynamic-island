@@ -111,6 +111,16 @@ None — both tasks compiled cleanly on first attempt.
 - The hackathon demo feature is fully wired: drag a .txt, .md, or .pdf file onto the notch, the notch expands, drop triggers Claude Haiku API, todos appear in today's list.
 - No outstanding blockers.
 
+## Self-Check: PASSED
+
+- Peninsula/Todo/FileTodoService.swift: FOUND
+- Peninsula/Notch/NotchView.swift: FOUND
+- Peninsula/Todo/TodoView.swift: FOUND
+- .planning/phases/02-todo-ui/02-04-SUMMARY.md: FOUND
+- Commit 9a824f5 (FileTodoService): FOUND
+- Commit ad044ff (NotchView + TodoView): FOUND
+- Build: SUCCEEDED
+
 ---
 *Phase: 02-todo-ui*
 *Completed: 2026-03-18*
