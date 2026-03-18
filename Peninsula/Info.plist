@@ -4,5 +4,7 @@
 <dict>
 	<key>SUFeedURL</key>
 	<string>https://raw.githubusercontent.com/celve/peninsula/main/appcast.xml</string>
+	<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
+	<string>Peninsula needs calendar access to create events from your todos</string>
 </dict>
 </plist>
