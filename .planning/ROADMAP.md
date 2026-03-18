@@ -53,7 +53,7 @@ Plans:
   3. User can confirm, edit, or dismiss extracted todos from the review panel (SC-03)
   4. Each todo item has an "Execute with AI" button that triggers an AI agent (SC-04)
   5. The agent demo executes at least one task type (calendar event) from the todo title (SC-05)
-**Plans:** 3 plans
+**Plans:** 1/3 plans executed
 Plans:
 - [ ] 03-01-PLAN.md — Refactor FileTodoService to return data for review + pulsing glow drop zone + text drag UTI
 - [ ] 03-02-PLAN.md — Chat review state machine + review panel UI with loading, confirm, dismiss, and refinement
@@ -68,4 +68,4 @@ Phases execute in numeric order: 1 → 2 → 3
 |-------|----------------|--------|-----------|
 | 1. Shell | 1/1 | Complete    | 2026-03-17 |
 | 2. Todo UI | 4/4 | Complete   | 2026-03-18 |
-| 3. AI Interaction | 0/3 | In Progress | — |
+| 3. AI Interaction | 1/3 | In Progress|  |
