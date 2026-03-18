@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 03-ai-interaction-02-PLAN.md
-last_updated: "2026-03-18T10:11:21.174Z"
+stopped_at: Completed 03-ai-interaction-03-PLAN.md
+last_updated: "2026-03-18T10:15:45.990Z"
 last_activity: 2026-03-17 — Phase 02 Plan 01 complete
 progress:
   total_phases: 3
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 8
-  completed_plans: 7
+  completed_plans: 8
   percent: 40
 ---
 
@@ -58,6 +58,7 @@ Progress: [████░░░░░░] 40%
 | Phase 02-todo-ui P04 | 2min | 2 tasks | 3 files |
 | Phase 03-ai-interaction P01 | 3min | 2 tasks | 3 files |
 | Phase 03-ai-interaction P02 | 4min | 2 tasks | 2 files |
+| Phase 03-ai-interaction P03 | 1min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -89,6 +90,9 @@ Recent decisions affecting current work:
 - [Phase 03-ai-interaction]: Tasks 1 and 2 combined into single TodoView.swift rewrite — both tasks modify the same file, splitting would create intermediate invalid state
 - [Phase 03-ai-interaction]: Notification bridge (.notchDidReceiveDrop) decouples NotchView drop events from TodoView state without introducing shared mutable state
 - [Phase 03-ai-interaction]: hasRefined flag limits refinement to one round per session — matches plan spec and prevents runaway API calls
+- [Phase 03-ai-interaction]: CalendarAgentService uses requestWriteOnlyAccessToEvents() (macOS 14+) instead of requestAccess(to:) — matches plan spec for modern API
+- [Phase 03-ai-interaction]: onToast callback is optional (nil-defaulted) so existing TodoRowView usages without toast support still compile
+- [Phase 03-ai-interaction]: Bolt button only shown for non-done items via !item.isDone guard — no point executing a completed todo
 
 ### Pending Todos
 
@@ -100,6 +104,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T10:11:21.171Z
-Stopped at: Completed 03-ai-interaction-02-PLAN.md
+Last session: 2026-03-18T10:15:45.987Z
+Stopped at: Completed 03-ai-interaction-03-PLAN.md
 Resume file: None

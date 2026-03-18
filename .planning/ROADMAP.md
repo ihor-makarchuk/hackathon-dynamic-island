@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Shell** - Peninsula gallery gutted; notch expands/collapses with a single TodoView placeholder wired in (completed 2026-03-17)
 - [x] **Phase 2: Todo UI** - Full todo list with display, input, and UserDefaults persistence (completed 2026-03-18)
-- [ ] **Phase 3: AI Interaction** - Text/file drop with chat-style review UI + "Execute with AI" agent button on todo items (calendar/Gmail demo)
+- [x] **Phase 3: AI Interaction** - Text/file drop with chat-style review UI + "Execute with AI" agent button on todo items (calendar/Gmail demo) (completed 2026-03-18)
 
 ## Phase Details
 
@@ -53,7 +53,7 @@ Plans:
   3. User can confirm, edit, or dismiss extracted todos from the review panel (SC-03)
   4. Each todo item has an "Execute with AI" button that triggers an AI agent (SC-04)
   5. The agent demo executes at least one task type (calendar event) from the todo title (SC-05)
-**Plans:** 1/3 plans executed
+**Plans:** 3/3 plans complete
 Plans:
 - [ ] 03-01-PLAN.md — Refactor FileTodoService to return data for review + pulsing glow drop zone + text drag UTI
 - [ ] 03-02-PLAN.md — Chat review state machine + review panel UI with loading, confirm, dismiss, and refinement
@@ -68,4 +68,4 @@ Phases execute in numeric order: 1 → 2 → 3
 |-------|----------------|--------|-----------|
 | 1. Shell | 1/1 | Complete    | 2026-03-17 |
 | 2. Todo UI | 4/4 | Complete   | 2026-03-18 |
-| 3. AI Interaction | 1/3 | In Progress|  |
+| 3. AI Interaction | 3/3 | Complete   | 2026-03-18 |
