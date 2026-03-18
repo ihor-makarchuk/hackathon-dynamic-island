@@ -1,42 +1,73 @@
 import Foundation
 import PDFKit
 
-/// Extracts text from a dropped file and calls Claude Haiku to generate todos.
+// Top-level type so TodoView and other callers can access it directly.
+struct ClaudeTodo: Decodable {
+    let title: String
+    let priority: String   // "high" | "normal" | "low"
+}
+
+/// Extracts text from a dropped file or plain text and calls Claude Haiku to generate todos.
 class FileTodoService {
     static let shared = FileTodoService()
 
     private let supportedExtensions: Set<String> = ["txt", "md", "pdf"]
 
-    // MARK: - Public entry point
+    // MARK: - Public entry points
 
-    /// Called with a file URL from the drop handler.
-    /// Extracts text, calls Claude, adds todos to today's list.
-    /// Silently ignores unsupported types; logs errors to console, never crashes.
-    func process(fileURL: URL) {
+    /// Called with a file URL from a drop handler.
+    /// Extracts text, calls Claude, and returns the extracted todo array.
+    /// Returns [] for unsupported types or empty text; re-throws API errors.
+    func process(fileURL: URL) async throws -> [ClaudeTodo] {
         let ext = fileURL.pathExtension.lowercased()
-        guard supportedExtensions.contains(ext) else { return }
+        guard supportedExtensions.contains(ext) else { return [] }
 
-        Task {
-            do {
-                guard let text = extractText(from: fileURL, extension: ext),
-                      !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-                    print("[FileTodoService] No text extracted from \(fileURL.lastPathComponent)")
-                    return
-                }
-                let todos = try await callClaudeAPI(content: text)
-                await MainActor.run {
-                    for todo in todos {
-                        TodoStore.shared.add(TodoItem(
-                            title: todo.title,
-                            priority: priority(from: todo.priority),
-                            dueDate: Calendar.current.startOfDay(for: Date())
-                        ))
-                    }
-                }
-            } catch {
-                print("[FileTodoService] Error processing \(fileURL.lastPathComponent): \(error)")
-            }
+        guard let text = extractText(from: fileURL, extension: ext),
+              !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            print("[FileTodoService] No text extracted from \(fileURL.lastPathComponent)")
+            return []
         }
+
+        do {
+            return try await callClaudeAPI(content: text)
+        } catch {
+            print("[FileTodoService] Error processing \(fileURL.lastPathComponent): \(error)")
+            throw error
+        }
+    }
+
+    /// Called with a plain text string (e.g. dragged from another app).
+    /// Calls Claude and returns the extracted todo array.
+    func process(text: String) async throws -> [ClaudeTodo] {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return [] }
+        return try await callClaudeAPI(content: trimmed)
+    }
+
+    /// One-round chat refinement: applies `instruction` to `originalTodos` and returns the revised list.
+    func refine(originalTodos: [ClaudeTodo], instruction: String) async throws -> [ClaudeTodo] {
+        guard let apiKey = ProcessInfo.processInfo.environment["ANTHROPIC_API_KEY"],
+              !apiKey.isEmpty else {
+            print("[FileTodoService] ANTHROPIC_API_KEY not set")
+            return originalTodos
+        }
+
+        let todosJSON = originalTodos
+            .map { "{\"title\":\"\($0.title)\",\"priority\":\"\($0.priority)\"}" }
+            .joined(separator: ",")
+
+        let systemPrompt = """
+        You are a todo refinement assistant. \
+        The user has a list of extracted todos and wants to modify them. \
+        Apply the user's instruction to the todo list. \
+        Return ONLY a valid JSON array — no prose, no markdown fences. \
+        Each element must have exactly two keys: "title" (string) and "priority" ("high", "normal", or "low").
+        """
+
+        let userMessage = "Current todos:\n[\(todosJSON)]\n\nUser instruction: \(instruction)"
+
+        _ = apiKey  // already checked above; callClaudeAPIWithMessages re-reads it
+        return try await callClaudeAPIWithMessages(system: systemPrompt, user: userMessage)
     }
 
     // MARK: - Text Extraction
@@ -55,18 +86,7 @@ class FileTodoService {
 
     // MARK: - Claude API
 
-    private struct ClaudeTodo: Decodable {
-        let title: String
-        let priority: String   // "high" | "normal" | "low"
-    }
-
     private func callClaudeAPI(content: String) async throws -> [ClaudeTodo] {
-        guard let apiKey = ProcessInfo.processInfo.environment["ANTHROPIC_API_KEY"],
-              !apiKey.isEmpty else {
-            print("[FileTodoService] ANTHROPIC_API_KEY not set — skipping API call")
-            return []
-        }
-
         let truncated = String(content.prefix(8000))  // stay well within token limits
 
         let systemPrompt = """
@@ -79,13 +99,22 @@ Extract between 1 and 10 items. If nothing actionable is found, return an empty 
 """
 
         let userMessage = "Extract todo items from the following content:\n\n\(truncated)"
+        return try await callClaudeAPIWithMessages(system: systemPrompt, user: userMessage)
+    }
+
+    private func callClaudeAPIWithMessages(system: String, user: String) async throws -> [ClaudeTodo] {
+        guard let apiKey = ProcessInfo.processInfo.environment["ANTHROPIC_API_KEY"],
+              !apiKey.isEmpty else {
+            print("[FileTodoService] ANTHROPIC_API_KEY not set — skipping API call")
+            return []
+        }
 
         let requestBody: [String: Any] = [
             "model": "claude-haiku-4-5",
             "max_tokens": 1024,
-            "system": systemPrompt,
+            "system": system,
             "messages": [
-                ["role": "user", "content": userMessage]
+                ["role": "user", "content": user]
             ]
         ]
 
@@ -132,7 +161,7 @@ Extract between 1 and 10 items. If nothing actionable is found, return an empty 
 
     // MARK: - Priority Mapping
 
-    private func priority(from string: String) -> Priority {
+    func priority(from string: String) -> Priority {
         switch string.lowercased() {
         case "high":   return .high
         case "low":    return .low
