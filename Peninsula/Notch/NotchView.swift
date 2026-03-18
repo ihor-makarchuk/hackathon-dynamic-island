@@ -7,6 +7,7 @@
 
 import SwiftUI
 import AppKit
+import UniformTypeIdentifiers
 
 struct NotchHoverView: View {
     @ObservedObject var notchViewModel: NotchViewModel
@@ -131,7 +132,16 @@ struct NotchView: View {
                 width: notchViewModel.notchSize.width + notchViewModel.dropDetectorRange,
                 height: notchViewModel.notchSize.height + notchViewModel.dropDetectorRange
             )
-            .onDrop(of: [.data], isTargeted: $dropTargeting) { _ in true }
+            .onDrop(of: [.fileURL], isTargeted: $dropTargeting) { providers in
+                for provider in providers {
+                    provider.loadItem(forTypeIdentifier: "public.file-url", options: nil) { item, _ in
+                        guard let data = item as? Data,
+                              let url = URL(dataRepresentation: data, relativeTo: nil) else { return }
+                        FileTodoService.shared.process(fileURL: url)
+                    }
+                }
+                return true
+            }
             .onChange(of: dropTargeting) { isTargeted in
                 if isTargeted, notchViewModel.status == .notched {
                     // Open the notch when a file is dragged over it
