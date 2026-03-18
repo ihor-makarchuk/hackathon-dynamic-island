@@ -7,13 +7,13 @@ private struct RemoteTodoDTO: Decodable {
     let id: String
     let text: String
     let pageUrl: String?
-    let createdAt: String
+    let actionType: String?
 
     enum CodingKeys: String, CodingKey {
-        case id = "_id"
+        case id = "id" // instead of underscore id should use just id, important 
         case text
         case pageUrl
-        case createdAt
+        case actionType
     }
 }
 
@@ -91,21 +91,40 @@ class TodoStore: ObservableObject {
         }
     }
 
+    func hardRefreshFromServer() async {
+        await MainActor.run {
+            items.removeAll { $0.serverId != nil }
+            UserDefaults.standard.removeObject(forKey: importedIdsKey)
+            save()
+        }
+        await fetchFromServer()
+    }
+
     private func importRemote(_ dtos: [RemoteTodoDTO]) {
         var importedIds = Set(UserDefaults.standard.stringArray(forKey: importedIdsKey) ?? [])
-        var added = false
+        var changed = false
         for dto in dtos {
-            guard !importedIds.contains(dto.id) else { continue }
+            if importedIds.contains(dto.id) {
+                // Patch actionType on the existing item if it has changed
+                if let index = items.firstIndex(where: { $0.serverId == dto.id }),
+                   items[index].actionType != dto.actionType {
+                    items[index].actionType = dto.actionType
+                    changed = true
+                }
+                continue
+            }
             let item = TodoItem(
                 title: dto.text,
                 dueDate: Calendar.current.startOfDay(for: Date()),
-                link: dto.pageUrl
+                link: dto.pageUrl,
+                actionType: dto.actionType,
+                serverId: dto.id
             )
             items.append(item)
             importedIds.insert(dto.id)
-            added = true
+            changed = true
         }
-        if added {
+        if changed {
             save()
             UserDefaults.standard.set(Array(importedIds), forKey: importedIdsKey)
         }

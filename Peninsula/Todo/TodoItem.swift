@@ -15,6 +15,8 @@ struct TodoItem: Identifiable, Codable {
     var dueDate: Date
     var link: String?
     var notes: String?
+    var actionType: String?
+    var serverId: String?
 
     init(
         id: UUID = UUID(),
@@ -24,7 +26,9 @@ struct TodoItem: Identifiable, Codable {
         createdAt: Date = Date(),
         dueDate: Date = Date(),
         link: String? = nil,
-        notes: String? = nil
+        notes: String? = nil,
+        actionType: String? = nil,
+        serverId: String? = nil
     ) {
         self.id = id
         self.title = title
@@ -34,6 +38,8 @@ struct TodoItem: Identifiable, Codable {
         self.dueDate = dueDate
         self.link = link
         self.notes = notes
+        self.actionType = actionType
+        self.serverId = serverId
     }
 }
 

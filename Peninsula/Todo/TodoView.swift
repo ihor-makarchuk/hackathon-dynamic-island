@@ -26,6 +26,8 @@ struct TodoView: View {
     @State private var refinementText: String = ""
     @State private var hasRefined: Bool = false
     @State private var toastMessage: String? = nil
+    @State private var expandedItemId: UUID? = nil
+    @State private var isRefreshing = false
 
     private var displayItems: [TodoItem] {
         store.items(for: selectedDate)
@@ -38,11 +40,33 @@ struct TodoView: View {
             case .idle:
                 // Existing content (unchanged)
                 VStack(spacing: 8) {
-                    DateCarouselView(selectedDate: $selectedDate)
+                    HStack(spacing: 6) {
+                        DateCarouselView(selectedDate: $selectedDate)
+                        Button(action: {
+                            guard !isRefreshing else { return }
+                            isRefreshing = true
+                            Task {
+                                await store.hardRefreshFromServer()
+                                await MainActor.run { isRefreshing = false }
+                            }
+                        }) {
+                            if isRefreshing {
+                                ProgressView()
+                                    .scaleEffect(0.5)
+                                    .frame(width: 16, height: 16)
+                            } else {
+                                Image(systemName: "arrow.clockwise")
+                                    .font(.system(size: 12))
+                                    .foregroundColor(.white.opacity(0.5))
+                            }
+                        }
+                        .buttonStyle(.plain)
+                        .help("Refresh from server")
+                    }
                     ScrollView(.vertical, showsIndicators: false) {
                         LazyVStack(spacing: 2) {
                             ForEach(displayItems) { item in
-                                TodoRowView(store: store, item: item, onToast: { showToast($0) })
+                                TodoRowView(store: store, item: item, expandedItemId: $expandedItemId, onToast: { showToast($0) })
                             }
                         }
                     }

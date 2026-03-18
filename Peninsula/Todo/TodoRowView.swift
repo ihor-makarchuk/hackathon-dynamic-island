@@ -3,18 +3,12 @@ import SwiftUI
 struct TodoRowView: View {
     @ObservedObject var store: TodoStore
     var item: TodoItem
+    @Binding var expandedItemId: UUID?
     var onToast: ((String) -> Void)?
     @State private var isHovering = false
-    @State private var isExpanded = false
     @State private var isExecuting = false
 
-    private var priorityColor: Color {
-        switch item.priority {
-        case .high: return .red
-        case .normal: return .gray
-        case .low: return .blue
-        }
-    }
+    private var isExpanded: Bool { expandedItemId == item.id }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -37,61 +31,52 @@ struct TodoRowView: View {
 
                 Spacer()
 
-                // Priority badge
-                HStack(spacing: 3) {
-                    Circle()
-                        .fill(priorityColor)
-                        .frame(width: 6, height: 6)
-                    Text(item.priority.rawValue.capitalized)
-                        .font(.system(.caption2, design: .rounded))
-                        .foregroundColor(priorityColor)
+                // Agent icon — always visible for create_calendar_event items
+                if !item.isDone && item.actionType == "create_calendar_event" {
+                    Button(action: {
+                        guard !isExecuting else { return }
+                        isExecuting = true
+                        Task {
+                            do {
+                                try await CalendarAgentService.shared.createEvent(from: item)
+                                await MainActor.run {
+                                    store.toggleDone(id: item.id)
+                                    onToast?("Calendar event created")
+                                    isExecuting = false
+                                }
+                            } catch {
+                                await MainActor.run {
+                                    onToast?(error.localizedDescription)
+                                    isExecuting = false
+                                }
+                            }
+                        }
+                    }) {
+                        if isExecuting {
+                            ProgressView()
+                                .scaleEffect(0.5)
+                                .frame(width: 12, height: 12)
+                        } else {
+                            HStack(spacing: 4) {
+                                AsyncImage(url: URL(string: "https://calendar.google.com/googlecalendar/images/favicons_2020q4/calendar_18.ico")) { image in
+                                    image.resizable().scaledToFit()
+                                } placeholder: {
+                                    Image(systemName: "calendar")
+                                        .foregroundColor(.blue.opacity(0.8))
+                                }
+                                .frame(width: 12, height: 12)
+                                Text("Add Event")
+                                    .font(.system(size: 10, weight: .medium, design: .rounded))
+                                    .foregroundColor(.purple.opacity(0.8))
+                            }
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .help("Execute with AI — create calendar event")
                 }
 
                 // Hover-visible buttons
                 if isHovering {
-                    // Execute with AI (only for non-done items)
-                    if !item.isDone {
-                        Button(action: {
-                            guard !isExecuting else { return }
-                            isExecuting = true
-                            Task {
-                                do {
-                                    try await CalendarAgentService.shared.createEvent(from: item)
-                                    await MainActor.run {
-                                        store.toggleDone(id: item.id)
-                                        onToast?("Calendar event created")
-                                        isExecuting = false
-                                    }
-                                } catch {
-                                    await MainActor.run {
-                                        onToast?(error.localizedDescription)
-                                        isExecuting = false
-                                    }
-                                }
-                            }
-                        }) {
-                            if isExecuting {
-                                ProgressView()
-                                    .scaleEffect(0.5)
-                                    .frame(width: 12, height: 12)
-                            } else {
-                                Image(systemName: "bolt.fill")
-                                    .foregroundColor(.yellow.opacity(0.8))
-                                    .font(.system(size: 12))
-                            }
-                        }
-                        .buttonStyle(.plain)
-                        .help("Execute with AI — create calendar event")
-                    }
-
-                    // Expand/collapse arrow
-                    Button(action: { withAnimation(.easeInOut(duration: 0.2)) { isExpanded.toggle() } }) {
-                        Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                            .foregroundColor(.white.opacity(0.5))
-                            .font(.system(size: 11))
-                    }
-                    .buttonStyle(.plain)
-
                     // Delete
                     Button(action: { store.delete(id: item.id) }) {
                         Image(systemName: "trash")
@@ -105,6 +90,7 @@ struct TodoRowView: View {
             .padding(.vertical, 6)
             .contentShape(Rectangle())
             .onHover { isHovering = $0 }
+            .onTapGesture { withAnimation(.easeInOut(duration: 0.2)) { expandedItemId = isExpanded ? nil : item.id } }
 
             // Expandable detail panel
             if isExpanded {

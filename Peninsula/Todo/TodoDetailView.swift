@@ -14,21 +14,21 @@ struct TodoDetailView: View {
                 // Link field
                 HStack(spacing: 4) {
                     Image(systemName: "link")
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundColor(.white.opacity(0.5))
                     TextField("Link (optional)", text: Binding(
                         get: { item.link ?? "" },
                         set: { store.update(id: itemId, link: $0.isEmpty ? nil : $0) }
                     ))
                     .textFieldStyle(.plain)
-                    .font(.system(.caption, design: .rounded))
+                    .font(.system(.footnote, design: .rounded))
                     .foregroundColor(.white.opacity(0.7))
                 }
 
                 // Notes field
                 HStack(alignment: .top, spacing: 4) {
                     Image(systemName: "note.text")
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundColor(.white.opacity(0.5))
                         .padding(.top, 2)
                     TextField("Notes (optional)", text: Binding(
@@ -36,7 +36,7 @@ struct TodoDetailView: View {
                         set: { store.update(id: itemId, notes: $0.isEmpty ? nil : $0) }
                     ))
                     .textFieldStyle(.plain)
-                    .font(.system(.caption, design: .rounded))
+                    .font(.system(.footnote, design: .rounded))
                     .foregroundColor(.white.opacity(0.7))
                 }
             }
