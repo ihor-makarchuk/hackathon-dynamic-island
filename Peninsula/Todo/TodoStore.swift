@@ -1,10 +1,29 @@
 import Foundation
 import SwiftUI
 
+// MARK: - Remote DTO
+
+private struct RemoteTodoDTO: Decodable {
+    let id: String
+    let text: String
+    let pageUrl: String?
+    let createdAt: String
+
+    enum CodingKeys: String, CodingKey {
+        case id = "_id"
+        case text
+        case pageUrl
+        case createdAt
+    }
+}
+
+// MARK: - Store
+
 class TodoStore: ObservableObject {
     static let shared = TodoStore()
 
     private let storageKey = "peninsula.todos"
+    private let importedIdsKey = "peninsula.todos.importedServerIds"
 
     @Published var items: [TodoItem] = []
 
@@ -57,6 +76,39 @@ class TodoStore: ObservableObject {
     func incompleteCount(for date: Date) -> Int {
         let calendar = Calendar.current
         return items.filter { calendar.isDate($0.dueDate, inSameDayAs: date) && !$0.isDone }.count
+    }
+
+    // MARK: - Remote Sync
+
+    func fetchFromServer() async {
+        guard let url = URL(string: "http://localhost:3001/todos") else { return }
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let dtos = try JSONDecoder().decode([RemoteTodoDTO].self, from: data)
+            await MainActor.run { importRemote(dtos) }
+        } catch {
+            print("[TodoStore] fetchFromServer error: \(error)")
+        }
+    }
+
+    private func importRemote(_ dtos: [RemoteTodoDTO]) {
+        var importedIds = Set(UserDefaults.standard.stringArray(forKey: importedIdsKey) ?? [])
+        var added = false
+        for dto in dtos {
+            guard !importedIds.contains(dto.id) else { continue }
+            let item = TodoItem(
+                title: dto.text,
+                dueDate: Calendar.current.startOfDay(for: Date()),
+                link: dto.pageUrl
+            )
+            items.append(item)
+            importedIds.insert(dto.id)
+            added = true
+        }
+        if added {
+            save()
+            UserDefaults.standard.set(Array(importedIds), forKey: importedIdsKey)
+        }
     }
 
     // MARK: - Persistence

@@ -184,6 +184,9 @@ struct TodoView: View {
         .animation(.easeInOut(duration: 0.25), value: toastMessage)
         .animation(.easeInOut(duration: 0.15), value: isDropTargeted)
         .animation(.easeInOut(duration: 0.2), value: dropReviewState)
+        .task {
+            await store.fetchFromServer()
+        }
     }
 
     // MARK: - Toast
