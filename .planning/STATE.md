@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 03-ai-interaction-01-PLAN.md
-last_updated: "2026-03-18T10:06:37.689Z"
+stopped_at: Completed 03-ai-interaction-02-PLAN.md
+last_updated: "2026-03-18T10:11:21.174Z"
 last_activity: 2026-03-17 — Phase 02 Plan 01 complete
 progress:
   total_phases: 3
   completed_phases: 2
   total_plans: 8
-  completed_plans: 6
+  completed_plans: 7
   percent: 40
 ---
 
@@ -57,6 +57,7 @@ Progress: [████░░░░░░] 40%
 | Phase 02-todo-ui P03 | 1min | 2 tasks | 4 files |
 | Phase 02-todo-ui P04 | 2min | 2 tasks | 3 files |
 | Phase 03-ai-interaction P01 | 3min | 2 tasks | 3 files |
+| Phase 03-ai-interaction P02 | 4min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -85,6 +86,9 @@ Recent decisions affecting current work:
 - [Phase 03-ai-interaction]: ClaudeTodo promoted to top-level struct for direct access by TodoView in review panel
 - [Phase 03-ai-interaction]: process(fileURL:) removes internal Task{} wrapper — caller now owns async context; drop handlers are placeholder stubs deferred to Plan 02
 - [Phase 03-ai-interaction]: Pulsing glow uses three nested strokeBorder layers at blur 0/4/8 replacing Phase 2 drop hint overlay
+- [Phase 03-ai-interaction]: Tasks 1 and 2 combined into single TodoView.swift rewrite — both tasks modify the same file, splitting would create intermediate invalid state
+- [Phase 03-ai-interaction]: Notification bridge (.notchDidReceiveDrop) decouples NotchView drop events from TodoView state without introducing shared mutable state
+- [Phase 03-ai-interaction]: hasRefined flag limits refinement to one round per session — matches plan spec and prevents runaway API calls
 
 ### Pending Todos
 
@@ -96,6 +100,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T10:06:37.686Z
-Stopped at: Completed 03-ai-interaction-01-PLAN.md
+Last session: 2026-03-18T10:11:21.171Z
+Stopped at: Completed 03-ai-interaction-02-PLAN.md
 Resume file: None
