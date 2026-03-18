@@ -26,9 +26,92 @@ class TodoStore: ObservableObject {
     private let importedIdsKey = "peninsula.todos.importedServerIds"
 
     @Published var items: [TodoItem] = []
+    /// Transient — not persisted. Cleared on app launch.
+    @Published var inProgressIds: Set<UUID> = []
+
+    private let demoItemIds: [UUID] = [
+        UUID(uuidString: "a1b2c3d4-1234-5678-9abc-def012345678")!,
+        UUID(uuidString: "b2c3d4e5-2345-6789-abcd-ef0123456789")!,
+        UUID(uuidString: "c3d4e5f6-3456-789a-bcde-f01234567890")!,
+    ]
 
     init() {
         load()
+        seedDemoItemsIfNeeded()
+        refreshDemoItemDates()
+    }
+
+    private func refreshDemoItemDates() {
+        let today = Calendar.current.startOfDay(for: Date())
+        var changed = false
+        for id in demoItemIds {
+            guard let index = items.firstIndex(where: { $0.id == id }) else { continue }
+            if !Calendar.current.isDate(items[index].dueDate, inSameDayAs: today) {
+                items[index].dueDate = today
+                changed = true
+            }
+        }
+        if changed { save() }
+    }
+
+    // MARK: - Demo Seed
+
+    private let demoSeedVersionKey = "peninsula.todos.demoSeedVersion"
+    private let currentDemoSeedVersion = 2
+
+    private func seedDemoItemsIfNeeded() {
+        let savedVersion = UserDefaults.standard.integer(forKey: demoSeedVersionKey)
+        guard savedVersion < currentDemoSeedVersion else { return }
+
+        // Remove previously seeded non-server items and replace with current demos
+        items.removeAll { $0.serverId == nil }
+
+        let today = Calendar.current.startOfDay(for: Date())
+        let demos: [TodoItem] = [
+            TodoItem(
+                id: UUID(uuidString: "a1b2c3d4-1234-5678-9abc-def012345678") ?? UUID(),
+                title: "Schedule sync on Agent Builder roadmap with Viktor",
+                priority: .high,
+                dueDate: today,
+                link: "https://app.slack.com/client/grammarly/agent-quality",
+                notes: "Viktor wants to align on eval framework progress before Friday planning. Prepare a short summary of current coverage gaps.",
+                actionType: "create_calendar_event",
+                actionArguments: ActionArguments(
+                    title: "Agent Builder Roadmap Sync",
+                    attendees: ["viktor.zamoruev@grammarly.com"],
+                    startDate: "2026-03-20T14:00:00.000Z",
+                    description: "Discuss eval framework progress, current coverage gaps, and next steps for agent quality track.",
+                    duration: 30
+                )
+            ),
+            TodoItem(
+                id: UUID(uuidString: "b2c3d4e5-2345-6789-abcd-ef0123456789") ?? UUID(),
+                title: "Review and sign updated relocation agreement",
+                priority: .normal,
+                dueDate: today,
+                link: "https://mail.google.com/mail/u/0/#inbox/relocation-thread",
+                notes: "HR sent the updated agreement with the Berlin stipend details. Needs signature by Friday."
+            ),
+            TodoItem(
+                id: UUID(uuidString: "c3d4e5f6-3456-789a-bcde-f01234567890") ?? UUID(),
+                title: "Set up 1:1 with Ankita to review hackathon results",
+                priority: .high,
+                dueDate: today,
+                link: "https://docs.google.com/document/d/agent-eval-spec",
+                notes: "Ankita mentioned wanting to debrief on hackathon feedback and discuss next steps for productionizing the prototype.",
+                actionType: "create_calendar_event",
+                actionArguments: ActionArguments(
+                    title: "Hackathon Debrief — Ankita & Ihor",
+                    attendees: ["ankita.pm@grammarly.com"],
+                    startDate: "2026-03-19T16:00:00.000Z",
+                    description: "Review hackathon demo feedback, discuss path to production, align on next steps.",
+                    duration: 25
+                )
+            ),
+        ]
+        demos.forEach { items.append($0) }
+        save()
+        UserDefaults.standard.set(currentDemoSeedVersion, forKey: demoSeedVersionKey)
     }
 
     // MARK: - CRUD
@@ -43,6 +126,23 @@ class TodoStore: ObservableObject {
     func toggleDone(id: UUID) {
         guard let index = items.firstIndex(where: { $0.id == id }) else { return }
         items[index].isDone.toggle()
+        save()
+    }
+
+    /// Mark item as in-progress (transient — not persisted)
+    func setInProgress(id: UUID, _ value: Bool) {
+        if value { inProgressIds.insert(id) } else { inProgressIds.remove(id) }
+    }
+
+    /// Mark item as done by AI agent, store optional event URL as the link
+    func markDoneByAI(id: UUID, eventURL: URL?) {
+        guard let index = items.firstIndex(where: { $0.id == id }) else { return }
+        items[index].isDone = true
+        items[index].completedByAI = true
+        if let url = eventURL {
+            items[index].link = url.absoluteString
+        }
+        inProgressIds.remove(id)
         save()
     }
 
@@ -67,9 +167,11 @@ class TodoStore: ObservableObject {
     func items(for date: Date) -> [TodoItem] {
         let calendar = Calendar.current
         let dayItems = items.filter { calendar.isDate($0.dueDate, inSameDayAs: date) }
-        let active = dayItems.filter { !$0.isDone }.sorted { $0.priority.sortOrder < $1.priority.sortOrder }
+        let inProgress = dayItems.filter { inProgressIds.contains($0.id) }
+        let active = dayItems.filter { !$0.isDone && !inProgressIds.contains($0.id) }
+            .sorted { $0.priority.sortOrder < $1.priority.sortOrder }
         let done = dayItems.filter { $0.isDone }
-        return active + done
+        return inProgress + active + done
     }
 
     /// Count of incomplete items for a specific calendar day

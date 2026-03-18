@@ -94,6 +94,10 @@ Recent decisions affecting current work:
 - [Phase 03-ai-interaction]: onToast callback is optional (nil-defaulted) so existing TodoRowView usages without toast support still compile
 - [Phase 03-ai-interaction]: Bolt button only shown for non-done items via !item.isDone guard — no point executing a completed todo
 
+### Roadmap Evolution
+
+- Phase 4 added: 4
+
 ### Pending Todos
 
 None yet.

@@ -69,3 +69,13 @@ Phases execute in numeric order: 1 → 2 → 3
 | 1. Shell | 1/1 | Complete    | 2026-03-17 |
 | 2. Todo UI | 4/4 | Complete   | 2026-03-18 |
 | 3. AI Interaction | 3/3 | Complete   | 2026-03-18 |
+
+### Phase 4: 4
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 3
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 4 to break down)

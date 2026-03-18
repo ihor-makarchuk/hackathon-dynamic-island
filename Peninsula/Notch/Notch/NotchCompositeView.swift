@@ -14,7 +14,7 @@ struct NotchCompositeView: View {
     @ObservedObject var galleryModel = GalleryModel.shared
 
     var headline: some View {
-        Text("Todo").contentTransition(.numericText())
+        Text("Catchbox").contentTransition(.numericText())
     }
 
     var menubar: some View { EmptyView() }

@@ -1,6 +1,10 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
+enum AgentModalPhase {
+    case confirming, thinking, success
+}
+
 enum DropReviewState: Equatable {
     case idle
     case loading
@@ -28,6 +32,9 @@ struct TodoView: View {
     @State private var toastMessage: String? = nil
     @State private var expandedItemId: UUID? = nil
     @State private var isRefreshing = false
+    @State private var agentConfirmItem: TodoItem? = nil
+    @State private var agentModalPhase: AgentModalPhase = .confirming
+    @State private var createdEventURL: URL? = nil
 
     private var displayItems: [TodoItem] {
         store.items(for: selectedDate)
@@ -63,15 +70,26 @@ struct TodoView: View {
                         .buttonStyle(.plain)
                         .help("Refresh from server")
                     }
+                    TodoInputView(store: store, selectedDate: selectedDate)
                     ScrollView(.vertical, showsIndicators: false) {
                         LazyVStack(spacing: 2) {
                             ForEach(displayItems) { item in
-                                TodoRowView(store: store, item: item, expandedItemId: $expandedItemId, onToast: { showToast($0) })
+                                TodoRowView(
+                                store: store,
+                                item: item,
+                                expandedItemId: $expandedItemId,
+                                onToast: { showToast($0) },
+                                onAgentAction: {
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
+                                        agentConfirmItem = item
+                                        agentModalPhase = .confirming
+                                    }
+                                }
+                            )
                             }
                         }
                     }
                     .frame(maxHeight: .infinity)
-                    TodoInputView(store: store, selectedDate: selectedDate)
                 }
                 .padding(.horizontal, 4)
 
@@ -117,6 +135,13 @@ struct TodoView: View {
                     .allowsHitTesting(false)
             }
         }
+        .overlay {
+            if let item = agentConfirmItem {
+                agentModal(for: item)
+                    .transition(.opacity)
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: agentConfirmItem != nil)
         .onDrop(of: [.fileURL, .plainText], isTargeted: $isDropTargeted) { providers in
             for provider in providers {
                 if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
@@ -220,6 +245,165 @@ struct TodoView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
             withAnimation { toastMessage = nil }
         }
+    }
+
+    // MARK: - Agent Confirmation Modal
+
+    @ViewBuilder
+    private func agentModal(for item: TodoItem) -> some View {
+        ZStack {
+            // Solid opaque background — no transparency bleed
+            RoundedRectangle(cornerRadius: 14)
+                .fill(Color(red: 0.11, green: 0.11, blue: 0.13))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .strokeBorder(Color.white.opacity(0.1), lineWidth: 0.5)
+                )
+
+            VStack(alignment: .leading, spacing: 0) {
+                switch agentModalPhase {
+                case .confirming:
+                    // Header: icon + title
+                    HStack(spacing: 10) {
+                        CalendarAppIcon()
+                        Text("Quick Add")
+                            .font(.system(.title3, design: .rounded, weight: .bold))
+                            .foregroundColor(.white)
+                    }
+                    .padding(.bottom, 18)
+
+                    // Account row
+                    HStack(spacing: 8) {
+                        Text("Account")
+                            .font(.system(.subheadline, design: .rounded))
+                            .foregroundColor(.white.opacity(0.45))
+                        Text(CalendarAgentService.shared.accountDisplayName)
+                            .font(.system(.subheadline, design: .rounded))
+                            .foregroundColor(.white.opacity(0.85))
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 4)
+                            .overlay(Capsule().strokeBorder(Color.white.opacity(0.25), lineWidth: 1))
+                    }
+                    .padding(.bottom, 16)
+
+                    // Description label + text
+                    Text("Description")
+                        .font(.system(.subheadline, design: .rounded))
+                        .foregroundColor(.white.opacity(0.45))
+                        .padding(.bottom, 6)
+
+                    Text(item.title)
+                        .font(.system(.body, design: .rounded))
+                        .foregroundColor(.white)
+                        .lineLimit(3)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.bottom, 22)
+
+                    // Buttons
+                    HStack(spacing: 10) {
+                        Button("Approve") {
+                            store.setInProgress(id: item.id, true)
+                            withAnimation(.easeInOut(duration: 0.25)) {
+                                agentModalPhase = .thinking
+                            }
+                            Task {
+                                do {
+                                    // Enforce minimum 2.5 s thinking display
+                                    let deadline = Date().addingTimeInterval(2.5)
+                                    let url = try await CalendarAgentService.shared.createEvent(from: item)
+                                    let remaining = deadline.timeIntervalSinceNow
+                                    if remaining > 0 {
+                                        try? await Task.sleep(nanoseconds: UInt64(remaining * 1_000_000_000))
+                                    }
+
+                                    await MainActor.run {
+                                        createdEventURL = url
+                                        // Close popup — row "Running…" badge takes over
+                                        withAnimation(.easeOut(duration: 0.25)) {
+                                            agentConfirmItem = nil
+                                        }
+                                    }
+
+                                    // Keep "Running…" badge visible for 6 more seconds
+                                    try? await Task.sleep(nanoseconds: 6_000_000_000)
+
+                                    await MainActor.run {
+                                        withAnimation(.easeOut(duration: 0.25)) {
+                                            store.markDoneByAI(id: item.id, eventURL: createdEventURL)
+                                            createdEventURL = nil
+                                        }
+                                    }
+                                } catch {
+                                    await MainActor.run {
+                                        store.setInProgress(id: item.id, false)
+                                        showToast(error.localizedDescription)
+                                        withAnimation(.easeOut(duration: 0.2)) {
+                                            agentConfirmItem = nil
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        .buttonStyle(.plain)
+                        .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 9)
+                        .background(RoundedRectangle(cornerRadius: 8).fill(Color(red: 0.55, green: 0.35, blue: 0.95)))
+
+                        Button("Dismiss") {
+                            withAnimation(.easeOut(duration: 0.2)) {
+                                agentConfirmItem = nil
+                            }
+                        }
+                        .buttonStyle(.plain)
+                        .font(.system(.subheadline, design: .rounded))
+                        .foregroundColor(.white.opacity(0.8))
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 9)
+                        .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Color.white.opacity(0.25), lineWidth: 1))
+                    }
+
+                case .thinking:
+                    HStack {
+                        Spacer()
+                        VStack(spacing: 16) {
+                            ThinkingDotsView()
+                            Text("Agent is thinking...")
+                                .font(.system(.subheadline, design: .rounded))
+                                .foregroundColor(.orange.opacity(0.9))
+                        }
+                        Spacer()
+                    }
+
+                case .success:
+                    HStack {
+                        Spacer()
+                        VStack(spacing: 12) {
+                            SuccessCheckmarkView()
+                            Text("Event created!")
+                                .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                                .foregroundColor(.white)
+                            if let url = createdEventURL {
+                                Button(action: { NSWorkspace.shared.open(url) }) {
+                                    HStack(spacing: 5) {
+                                        Text("Open in Calendar")
+                                            .font(.system(.caption, design: .rounded, weight: .medium))
+                                        Image(systemName: "arrow.up.right")
+                                            .font(.system(size: 9, weight: .medium))
+                                    }
+                                    .foregroundColor(Color(red: 0.55, green: 0.35, blue: 0.95))
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                        Spacer()
+                    }
+                }
+            }
+            .padding(24)
+        }
+        .padding(8)
     }
 
     // MARK: - Review Panel
@@ -349,5 +533,78 @@ struct TodoView: View {
         case "low": return .blue
         default: return .gray
         }
+    }
+}
+
+// MARK: - Calendar app icon
+
+private struct CalendarAppIcon: View {
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 7)
+                .fill(.white)
+            VStack(spacing: 0) {
+                // Blue top strip (like Google Calendar)
+                Rectangle()
+                    .fill(Color(red: 0.26, green: 0.52, blue: 0.96))
+                    .frame(height: 11)
+                // Colored quadrants
+                HStack(spacing: 0) {
+                    Rectangle().fill(Color(red: 0.18, green: 0.80, blue: 0.44))
+                    Rectangle().fill(Color(red: 0.99, green: 0.74, blue: 0.14))
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 7))
+            // Day number
+            Text("31")
+                .font(.system(size: 11, weight: .bold, design: .rounded))
+                .foregroundColor(Color(red: 0.26, green: 0.52, blue: 0.96))
+                .offset(y: 5)
+        }
+        .frame(width: 32, height: 32)
+    }
+}
+
+// MARK: - Thinking animation
+
+private struct ThinkingDotsView: View {
+    @State private var phase: Int = 0
+    let timer = Timer.publish(every: 0.35, on: .main, in: .common).autoconnect()
+
+    var body: some View {
+        HStack(spacing: 8) {
+            ForEach(0..<3, id: \.self) { index in
+                Circle()
+                    .fill(Color.orange)
+                    .frame(width: 9, height: 9)
+                    .scaleEffect(phase == index ? 1.3 : 0.65)
+                    .opacity(phase == index ? 1.0 : 0.35)
+                    .animation(.easeInOut(duration: 0.25), value: phase)
+            }
+        }
+        .onReceive(timer) { _ in
+            phase = (phase + 1) % 3
+        }
+    }
+}
+
+// MARK: - Success checkmark
+
+private struct SuccessCheckmarkView: View {
+    @State private var scale: CGFloat = 0.2
+    @State private var opacity: Double = 0.0
+
+    var body: some View {
+        Image(systemName: "checkmark.circle.fill")
+            .font(.system(size: 54))
+            .foregroundColor(.green)
+            .scaleEffect(scale)
+            .opacity(opacity)
+            .onAppear {
+                withAnimation(.spring(response: 0.45, dampingFraction: 0.55)) {
+                    scale = 1.0
+                    opacity = 1.0
+                }
+            }
     }
 }

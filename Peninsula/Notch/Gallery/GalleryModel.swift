@@ -9,7 +9,7 @@ enum GalleryItem: Int, Codable, Hashable, Equatable {
     case todo
 
     func count() -> Int { 1 }
-    func toTitle() -> String { "Todo" }
+    func toTitle() -> String { "Catchbox" }
 }
 
 

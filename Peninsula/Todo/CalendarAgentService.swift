@@ -23,11 +23,17 @@ class CalendarAgentService {
     static let shared = CalendarAgentService()
     private let store = EKEventStore()
 
+    var accountDisplayName: String {
+        store.defaultCalendarForNewEvents?.source?.title
+            ?? store.defaultCalendarForNewEvents?.title
+            ?? "Default Calendar"
+    }
+
     /// Creates a calendar event from a TodoItem.
-    /// 1. Requests write-only EventKit access
-    /// 2. Calls Claude to infer date/time from title + notes
-    /// 3. Creates and saves EKEvent to default calendar
-    func createEvent(from item: TodoItem) async throws {
+    /// Uses `actionArguments` when available (skips Claude); otherwise infers date via Claude.
+    /// Returns a `calshow://` URL that opens Calendar.app at the event's date.
+    @discardableResult
+    func createEvent(from item: TodoItem) async throws -> URL? {
         // 1. Check authorization and request if needed
         let status = EKEventStore.authorizationStatus(for: .event)
         if status == .denied || status == .restricted {
@@ -38,8 +44,18 @@ class CalendarAgentService {
             throw CalendarAgentError.accessDenied
         }
 
-        // 2. Infer event date from title + notes via Claude
-        let eventDate = try await inferEventDate(from: item)
+        // 2. Resolve event fields — prefer actionArguments when available
+        let args = item.actionArguments
+        let eventTitle = args?.title ?? item.title
+        let eventNotes = args?.description ?? item.notes
+        let durationSeconds = TimeInterval((args?.duration ?? 60) * 60)
+
+        let eventStart: Date
+        if let startISO = args?.startDate, let parsed = parseISO(startISO) {
+            eventStart = parsed
+        } else {
+            eventStart = try await inferEventDate(from: item)
+        }
 
         // 3. Create EKEvent
         guard let calendar = store.defaultCalendarForNewEvents else {
@@ -47,13 +63,13 @@ class CalendarAgentService {
         }
 
         let event = EKEvent(eventStore: store)
-        event.title = item.title
-        event.notes = item.notes
+        event.title = eventTitle
+        event.notes = eventNotes
         if let linkStr = item.link, let url = URL(string: linkStr) {
             event.url = url
         }
-        event.startDate = eventDate
-        event.endDate = eventDate.addingTimeInterval(3600)  // 1-hour default
+        event.startDate = eventStart
+        event.endDate = eventStart.addingTimeInterval(durationSeconds)
         event.calendar = calendar
 
         do {
@@ -61,6 +77,18 @@ class CalendarAgentService {
         } catch {
             throw CalendarAgentError.saveFailed(error)
         }
+
+        // calshow:// uses CFAbsoluteTime (seconds since 2001-01-01)
+        let cfTime = event.startDate.timeIntervalSinceReferenceDate
+        return URL(string: "calshow://\(Int(cfTime))")
+    }
+
+    private func parseISO(_ string: String) -> Date? {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        if let d = f.date(from: string) { return d }
+        f.formatOptions = [.withInternetDateTime]
+        return f.date(from: string)
     }
 
     // MARK: - Date Inference via Claude
