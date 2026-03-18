@@ -23,7 +23,7 @@ struct NotchHoverView: View {
                         HStack(spacing: notchViewModel.deviceNotchRect.height / 8) {
                             LiveView(notchViewModel: notchViewModel)
                             TodoCounterBadge(notchHeight: notchViewModel.deviceNotchRect.height)
-                                .padding(.trailing, 12)
+                                .padding(.trailing, 14)
                         }
                         .padding(.horizontal, notchViewModel.cornerRadius / 2)
                         .offset(x: notchViewModel.abstractSize / 2, y: 0)
@@ -133,12 +133,22 @@ struct NotchView: View {
                 width: notchViewModel.notchSize.width + notchViewModel.dropDetectorRange,
                 height: notchViewModel.notchSize.height + notchViewModel.dropDetectorRange
             )
-            .onDrop(of: [.fileURL], isTargeted: $dropTargeting) { providers in
+            .onDrop(of: [.fileURL, .plainText], isTargeted: $dropTargeting) { providers in
                 for provider in providers {
-                    provider.loadItem(forTypeIdentifier: "public.file-url", options: nil) { item, _ in
-                        guard let data = item as? Data,
-                              let url = URL(dataRepresentation: data, relativeTo: nil) else { return }
-                        FileTodoService.shared.process(fileURL: url)
+                    if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
+                        provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, _ in
+                            guard let data = item as? Data,
+                                  let url = URL(dataRepresentation: data, relativeTo: nil) else { return }
+                            print("[NotchView] File dropped — review flow pending")
+                            _ = url
+                        }
+                    }
+                    if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
+                        provider.loadObject(ofClass: String.self) { string, _ in
+                            guard let text = string else { return }
+                            print("[NotchView] Text dropped — review flow pending")
+                            _ = text
+                        }
                     }
                 }
                 return true

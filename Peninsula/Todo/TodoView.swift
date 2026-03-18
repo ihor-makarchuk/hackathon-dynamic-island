@@ -1,9 +1,11 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct TodoView: View {
     @ObservedObject var store = TodoStore.shared
     @State private var selectedDate = Date()
     @State private var isDropTargeted: Bool = false
+    @State private var glowPulse = false
 
     private var displayItems: [TodoItem] {
         store.items(for: selectedDate)
@@ -26,39 +28,45 @@ struct TodoView: View {
             }
             .padding(.horizontal, 4)
 
-            // Drop hint overlay — visible only when a file is dragged over the opened notch
+            // Pulsing glow drop zone — visible only when a file or text is dragged over the opened notch
             if isDropTargeted {
                 RoundedRectangle(cornerRadius: 12)
-                    .strokeBorder(Color.white.opacity(0.4), lineWidth: 2, antialiased: true)
-                    .background(
+                    .strokeBorder(Color.white.opacity(0.9), lineWidth: 2)
+                    .blur(radius: 0)
+                    .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.white.opacity(0.06))
+                            .strokeBorder(Color.white.opacity(0.6), lineWidth: 6)
+                            .blur(radius: 4)
                     )
                     .overlay(
-                        VStack(spacing: 6) {
-                            Image(systemName: "doc.badge.plus")
-                                .font(.system(size: 28))
-                                .foregroundColor(.white.opacity(0.7))
-                            Text("Drop to create todos")
-                                .font(.system(.subheadline, design: .rounded))
-                                .foregroundColor(.white.opacity(0.6))
-                        }
+                        RoundedRectangle(cornerRadius: 12)
+                            .strokeBorder(Color.white.opacity(0.3), lineWidth: 12)
+                            .blur(radius: 8)
                     )
+                    .opacity(glowPulse ? 1.0 : 0.4)
+                    .animation(.easeInOut(duration: 0.7).repeatForever(autoreverses: true), value: glowPulse)
+                    .onAppear { glowPulse = true }
+                    .onDisappear { glowPulse = false }
                     .padding(8)
-                    .transition(.opacity)
                     .allowsHitTesting(false)
             }
         }
-        .onDrop(of: [.fileURL], isTargeted: $isDropTargeted) { providers in
-            // File processing is handled in NotchView.dragDetector.
-            // This secondary drop target just captures drops that land on
-            // the opened notch content area (dragDetector may not catch these
-            // when the notch is fully expanded). Route to FileTodoService directly.
+        .onDrop(of: [.fileURL, .plainText], isTargeted: $isDropTargeted) { providers in
             for provider in providers {
-                provider.loadItem(forTypeIdentifier: "public.file-url", options: nil) { item, _ in
-                    guard let data = item as? Data,
-                          let url = URL(dataRepresentation: data, relativeTo: nil) else { return }
-                    FileTodoService.shared.process(fileURL: url)
+                if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
+                    provider.loadItem(forTypeIdentifier: "public.file-url", options: nil) { item, _ in
+                        guard let data = item as? Data,
+                              let url = URL(dataRepresentation: data, relativeTo: nil) else { return }
+                        print("[TodoView] File dropped — review flow pending")
+                        _ = url
+                    }
+                }
+                if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
+                    provider.loadObject(ofClass: String.self) { string, _ in
+                        guard let text = string else { return }
+                        print("[TodoView] Text dropped — review flow pending")
+                        _ = text
+                    }
                 }
             }
             return true
