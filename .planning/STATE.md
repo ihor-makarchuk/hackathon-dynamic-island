@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 02-todo-ui 02-03-PLAN.md
-last_updated: "2026-03-18T09:08:22.101Z"
+stopped_at: Completed 02-todo-ui 02-04-PLAN.md
+last_updated: "2026-03-18T09:12:28.051Z"
 last_activity: 2026-03-17 — Phase 02 Plan 01 complete
 progress:
   total_phases: 2
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 5
-  completed_plans: 4
+  completed_plans: 5
   percent: 40
 ---
 
@@ -55,6 +55,7 @@ Progress: [████░░░░░░] 40%
 | Phase 02-todo-ui P01 | 1min | 2 tasks | 2 files |
 | Phase 02-todo-ui P02 | 1min | 2 tasks | 7 files |
 | Phase 02-todo-ui P03 | 1min | 2 tasks | 4 files |
+| Phase 02-todo-ui P04 | 2min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -77,6 +78,9 @@ Recent decisions affecting current work:
 - [Phase 02-todo-ui]: Priority prefix convention: '\! title' = high, '\!\! title' = low, 'title' = normal
 - [Phase 02-todo-ui]: Combine forward-publish pattern: todoStore.objectWillChange.sink added in setupCancellables() so NotchViewModel republishes on TodoStore changes
 - [Phase 02-todo-ui]: todoCounterWidth formula height*0.8+height/8 gives proportional badge width matching live icon spacing
+- [Phase 02-todo-ui]: FileTodoService reads ANTHROPIC_API_KEY from ProcessInfo.processInfo.environment — never hardcoded, never logged
+- [Phase 02-todo-ui]: Dual onDrop targets (NotchView dragDetector + TodoView body) provide full file-drop coverage across collapsed and expanded notch states
+- [Phase 02-todo-ui]: Content truncated to 8000 chars before Claude Haiku API call to keep latency and token cost minimal
 
 ### Pending Todos
 
@@ -88,6 +92,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18T09:08:22.099Z
-Stopped at: Completed 02-todo-ui 02-03-PLAN.md
+Last session: 2026-03-18T09:12:28.048Z
+Stopped at: Completed 02-todo-ui 02-04-PLAN.md
 Resume file: None

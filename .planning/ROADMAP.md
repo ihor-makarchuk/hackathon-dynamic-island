@@ -13,7 +13,7 @@ Fork Peninsula, gut the gallery views, replace with a single TodoView. Phase 1 e
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Shell** - Peninsula gallery gutted; notch expands/collapses with a single TodoView placeholder wired in (completed 2026-03-17)
-- [ ] **Phase 2: Todo UI** - Full todo list with display, input, and UserDefaults persistence
+- [x] **Phase 2: Todo UI** - Full todo list with display, input, and UserDefaults persistence (completed 2026-03-18)
 
 ## Phase Details
 
@@ -50,4 +50,4 @@ Phases execute in numeric order: 1 → 2
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Shell | 1/1 | Complete    | 2026-03-17 |
-| 2. Todo UI | 3/4 | In Progress|  |
+| 2. Todo UI | 4/4 | Complete   | 2026-03-18 |
