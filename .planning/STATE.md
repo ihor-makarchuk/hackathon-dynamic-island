@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 02-todo-ui 02-02-PLAN.md
-last_updated: "2026-03-17T22:55:44.157Z"
+stopped_at: Completed 02-todo-ui 02-03-PLAN.md
+last_updated: "2026-03-18T09:08:22.101Z"
 last_activity: 2026-03-17 — Phase 02 Plan 01 complete
 progress:
   total_phases: 2
   completed_phases: 1
   total_plans: 5
-  completed_plans: 3
+  completed_plans: 4
   percent: 40
 ---
 
@@ -54,6 +54,7 @@ Progress: [████░░░░░░] 40%
 | Phase 01-shell P01 | 7min | 3 tasks | 12 files |
 | Phase 02-todo-ui P01 | 1min | 2 tasks | 2 files |
 | Phase 02-todo-ui P02 | 1min | 2 tasks | 7 files |
+| Phase 02-todo-ui P03 | 1min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -74,6 +75,8 @@ Recent decisions affecting current work:
 - [Phase 02-todo-ui]: Hover-visible buttons (delete, expand) reduce visual clutter in compact notch UI
 - [Phase 02-todo-ui]: notchOpenedSize height increased from 201px to 501px to fit date carousel + list + input
 - [Phase 02-todo-ui]: Priority prefix convention: '\! title' = high, '\!\! title' = low, 'title' = normal
+- [Phase 02-todo-ui]: Combine forward-publish pattern: todoStore.objectWillChange.sink added in setupCancellables() so NotchViewModel republishes on TodoStore changes
+- [Phase 02-todo-ui]: todoCounterWidth formula height*0.8+height/8 gives proportional badge width matching live icon spacing
 
 ### Pending Todos
 
@@ -85,6 +88,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-17T22:55:44.155Z
-Stopped at: Completed 02-todo-ui 02-02-PLAN.md
+Last session: 2026-03-18T09:08:22.099Z
+Stopped at: Completed 02-todo-ui 02-03-PLAN.md
 Resume file: None
