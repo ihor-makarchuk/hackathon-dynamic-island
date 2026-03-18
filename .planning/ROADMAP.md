@@ -44,16 +44,20 @@ Plans:
 **Plans**: TBD
 
 ### Phase 3: AI Interaction
-**Goal**: Text and file drag-and-drop with animated drop zone, a chat-style review UI that lets users confirm/edit extracted todos before adding, and an "Execute with AI" button on todo items that demos AI agent task execution (calendar event creation or Gmail message)
+**Goal**: Text and file drag-and-drop with animated drop zone, a chat-style review UI that lets users confirm/edit extracted todos before adding, and an "Execute with AI" button on todo items that demos AI agent task execution (calendar event creation)
 **Depends on**: Phase 2
-**Requirements**: TBD
+**Requirements**: SC-01, SC-02, SC-03, SC-04, SC-05
 **Success Criteria** (what must be TRUE):
-  1. Dragging a text selection or file over the notch triggers an animated drop zone overlay
-  2. Dropped content is processed by Claude and extracted todos appear in a review panel before being added
-  3. User can confirm, edit, or dismiss extracted todos from the review panel
-  4. Each todo item has an "Execute with AI" button that triggers an AI agent
-  5. The agent demo executes at least one task type (calendar event or Gmail message) from the todo title
-**Plans**: TBD
+  1. Dragging a text selection or file over the notch triggers an animated drop zone overlay (SC-01)
+  2. Dropped content is processed by Claude and extracted todos appear in a review panel before being added (SC-02)
+  3. User can confirm, edit, or dismiss extracted todos from the review panel (SC-03)
+  4. Each todo item has an "Execute with AI" button that triggers an AI agent (SC-04)
+  5. The agent demo executes at least one task type (calendar event) from the todo title (SC-05)
+**Plans:** 3 plans
+Plans:
+- [ ] 03-01-PLAN.md — Refactor FileTodoService to return data for review + pulsing glow drop zone + text drag UTI
+- [ ] 03-02-PLAN.md — Chat review state machine + review panel UI with loading, confirm, dismiss, and refinement
+- [ ] 03-03-PLAN.md — CalendarAgentService + "Execute with AI" bolt button + toast overlay
 
 ## Progress
 
@@ -64,4 +68,4 @@ Phases execute in numeric order: 1 → 2 → 3
 |-------|----------------|--------|-----------|
 | 1. Shell | 1/1 | Complete    | 2026-03-17 |
 | 2. Todo UI | 4/4 | Complete   | 2026-03-18 |
-| 3. AI Interaction | TBD | Pending | — |
+| 3. AI Interaction | 0/3 | In Progress | — |
