@@ -23,6 +23,7 @@ struct NotchHoverView: View {
                         HStack(spacing: notchViewModel.deviceNotchRect.height / 8) {
                             LiveView(notchViewModel: notchViewModel)
                             TodoCounterBadge(notchHeight: notchViewModel.deviceNotchRect.height)
+                                .padding(.trailing, 12)
                         }
                         .padding(.horizontal, notchViewModel.cornerRadius / 2)
                         .offset(x: notchViewModel.abstractSize / 2, y: 0)

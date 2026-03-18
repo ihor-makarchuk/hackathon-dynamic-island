@@ -81,7 +81,7 @@ class NotchViewModel: NSObject, ObservableObject {
         let count = todoStore.incompleteCount(for: Date())
         if count == 0 { return 0 }
         // Width for the counter number + spacing
-        return deviceNotchRect.height * 0.8 + deviceNotchRect.height / 8
+        return deviceNotchRect.height * 0.8 + deviceNotchRect.height / 8 + 8
     }
 
     var abstractSize: CGFloat {

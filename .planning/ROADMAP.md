@@ -14,6 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Shell** - Peninsula gallery gutted; notch expands/collapses with a single TodoView placeholder wired in (completed 2026-03-17)
 - [x] **Phase 2: Todo UI** - Full todo list with display, input, and UserDefaults persistence (completed 2026-03-18)
+- [ ] **Phase 3: AI Interaction** - Text/file drop with chat-style review UI + "Execute with AI" agent button on todo items (calendar/Gmail demo)
 
 ## Phase Details
 
@@ -42,12 +43,25 @@ Plans:
   5. Todo items are still present after quitting and relaunching the app
 **Plans**: TBD
 
+### Phase 3: AI Interaction
+**Goal**: Text and file drag-and-drop with animated drop zone, a chat-style review UI that lets users confirm/edit extracted todos before adding, and an "Execute with AI" button on todo items that demos AI agent task execution (calendar event creation or Gmail message)
+**Depends on**: Phase 2
+**Requirements**: TBD
+**Success Criteria** (what must be TRUE):
+  1. Dragging a text selection or file over the notch triggers an animated drop zone overlay
+  2. Dropped content is processed by Claude and extracted todos appear in a review panel before being added
+  3. User can confirm, edit, or dismiss extracted todos from the review panel
+  4. Each todo item has an "Execute with AI" button that triggers an AI agent
+  5. The agent demo executes at least one task type (calendar event or Gmail message) from the todo title
+**Plans**: TBD
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2
+Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Shell | 1/1 | Complete    | 2026-03-17 |
 | 2. Todo UI | 4/4 | Complete   | 2026-03-18 |
+| 3. AI Interaction | TBD | Pending | — |
