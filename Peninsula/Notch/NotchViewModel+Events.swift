@@ -22,6 +22,11 @@ extension NotchViewModel {
                 )
             }
             .store(in: &cancellables)
+
+        todoStore.objectWillChange
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.objectWillChange.send() }
+            .store(in: &cancellables)
     }
 
     func destroy() {

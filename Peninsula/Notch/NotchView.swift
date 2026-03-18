@@ -19,10 +19,13 @@ struct NotchHoverView: View {
                 .zIndex(0)
                 .overlay {
                     if notchViewModel.status == .notched {
-                        LiveView(notchViewModel: notchViewModel)
-                            .padding(.horizontal, notchViewModel.cornerRadius / 2)
-                            .offset(x: notchViewModel.abstractSize / 2, y: 0)
-                            .frame(maxWidth: .infinity, maxHeight: notchViewModel.deviceNotchRect.height, alignment: Alignment(horizontal: .trailing, vertical: .center))
+                        HStack(spacing: notchViewModel.deviceNotchRect.height / 8) {
+                            LiveView(notchViewModel: notchViewModel)
+                            TodoCounterBadge(notchHeight: notchViewModel.deviceNotchRect.height)
+                        }
+                        .padding(.horizontal, notchViewModel.cornerRadius / 2)
+                        .offset(x: notchViewModel.abstractSize / 2, y: 0)
+                        .frame(maxWidth: .infinity, maxHeight: notchViewModel.deviceNotchRect.height, alignment: Alignment(horizontal: .trailing, vertical: .center))
                     }
                 }
             Group {

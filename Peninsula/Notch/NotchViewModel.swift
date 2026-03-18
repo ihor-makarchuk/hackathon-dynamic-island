@@ -76,18 +76,27 @@ class NotchViewModel: NSObject, ObservableObject {
         )
     }
 
+    var todoCounterWidth: CGFloat {
+        if status == .opened { return 0 }
+        let count = todoStore.incompleteCount(for: Date())
+        if count == 0 { return 0 }
+        // Width for the counter number + spacing
+        return deviceNotchRect.height * 0.8 + deviceNotchRect.height / 8
+    }
+
     var abstractSize: CGFloat {
         if status == .opened {
             return 0
         } else {
+            var size: CGFloat = 0
             let count = notifModel.names.count
-            if count == 0 {
-                return 0
-            } else {
+            if count > 0 {
                 let spacing = deviceNotchRect.height / 8
                 let itemHeight = deviceNotchRect.height
-                return spacing + (itemHeight + spacing) * CGFloat(count)
+                size = spacing + (itemHeight + spacing) * CGFloat(count)
             }
+            size += todoCounterWidth
+            return size
         }
     }
 
@@ -156,6 +165,7 @@ class NotchViewModel: NSObject, ObservableObject {
     }
 
     @ObservedObject var galleryModel = GalleryModel.shared
+    @ObservedObject var todoStore = TodoStore.shared
 
     @Published private(set) var status: Status = .notched
     @Published var isExternal: Bool = false
