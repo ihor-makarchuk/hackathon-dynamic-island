@@ -9,6 +9,10 @@ import SwiftUI
 import AppKit
 import UniformTypeIdentifiers
 
+extension Notification.Name {
+    static let notchDidReceiveDrop = Notification.Name("notchDidReceiveDrop")
+}
+
 struct NotchHoverView: View {
     @ObservedObject var notchViewModel: NotchViewModel
     @ObservedObject var notchModel = NotchModel.shared
@@ -139,15 +143,17 @@ struct NotchView: View {
                         provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, _ in
                             guard let data = item as? Data,
                                   let url = URL(dataRepresentation: data, relativeTo: nil) else { return }
-                            print("[NotchView] File dropped — review flow pending")
-                            _ = url
+                            DispatchQueue.main.async {
+                                NotificationCenter.default.post(name: .notchDidReceiveDrop, object: nil, userInfo: ["fileURL": url])
+                            }
                         }
                     }
                     if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
                         provider.loadObject(ofClass: String.self) { string, _ in
-                            guard let text = string else { return }
-                            print("[NotchView] Text dropped — review flow pending")
-                            _ = text
+                            guard let text = string, !text.isEmpty else { return }
+                            DispatchQueue.main.async {
+                                NotificationCenter.default.post(name: .notchDidReceiveDrop, object: nil, userInfo: ["text": text])
+                            }
                         }
                     }
                 }
