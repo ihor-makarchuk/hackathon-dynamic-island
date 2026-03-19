@@ -100,6 +100,16 @@ class NotchViewModel: NSObject, ObservableObject {
         }
     }
 
+    var leftAbstractSize: CGFloat {
+        if status == .popping { return max(0, abstractSize - 10) }
+        return 0
+    }
+
+    var hoverExpansion: CGFloat {
+        if status == .popping && abstractSize == 0 { return 40 }
+        return 0
+    }
+
     var headlineOpenedRect: CGRect {
         .init(
             x: screenRect.origin.x + (screenRect.width - notchOpenedSize.width) / 2,
@@ -128,15 +138,15 @@ class NotchViewModel: NSObject, ObservableObject {
             return notchOpenedSize
         case .popping:
             return .init(
-                width: deviceNotchRect.width + abstractSize + spacing,
-                height: deviceNotchRect.height * 2 + spacing + 1
+                width: deviceNotchRect.width + abstractSize + leftAbstractSize + hoverExpansion * 2,
+                height: deviceNotchRect.height + 30
             )
         }
     }
 
     var notchRect: CGRect {
         .init(
-            x: screenRect.origin.x + (screenRect.width - notchSize.width + abstractSize) / 2,
+            x: screenRect.origin.x + (screenRect.width - notchSize.width + abstractSize - leftAbstractSize) / 2,
             y: screenRect.origin.y + screenRect.height - notchSize.height,
             width: notchSize.width,
             height: notchSize.height

@@ -9,12 +9,22 @@ private struct RemoteTodoDTO: Decodable {
     let pageUrl: String?
     let actionType: String?
 
-    enum CodingKeys: String, CodingKey {
-        case id = "id" // instead of underscore id should use just id, important 
-        case text
-        case pageUrl
-        case actionType
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: AnyCodingKey.self)
+        id = try c.decodeIfPresent(String.self, forKey: AnyCodingKey("_id"))
+            ?? c.decode(String.self, forKey: AnyCodingKey("id"))
+        text = try c.decode(String.self, forKey: AnyCodingKey("text"))
+        pageUrl = try c.decodeIfPresent(String.self, forKey: AnyCodingKey("pageUrl"))
+        actionType = try c.decodeIfPresent(String.self, forKey: AnyCodingKey("actionType"))
     }
+}
+
+private struct AnyCodingKey: CodingKey {
+    let stringValue: String
+    var intValue: Int? { nil }
+    init(_ string: String) { self.stringValue = string }
+    init?(stringValue: String) { self.stringValue = stringValue }
+    init?(intValue: Int) { return nil }
 }
 
 // MARK: - Store
@@ -23,7 +33,6 @@ class TodoStore: ObservableObject {
     static let shared = TodoStore()
 
     private let storageKey = "peninsula.todos"
-    private let importedIdsKey = "peninsula.todos.importedServerIds"
 
     @Published var items: [TodoItem] = []
     /// Transient — not persisted. Cleared on app launch.
@@ -35,10 +44,19 @@ class TodoStore: ObservableObject {
         UUID(uuidString: "c3d4e5f6-3456-789a-bcde-f01234567890")!,
     ]
 
+    private var pollTimer: Timer?
+
     init() {
         load()
         seedDemoItemsIfNeeded()
         refreshDemoItemDates()
+        startPolling()
+    }
+
+    private func startPolling() {
+        pollTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+            Task { await self?.fetchFromServer() }
+        }
     }
 
     private func refreshDemoItemDates() {
@@ -194,42 +212,83 @@ class TodoStore: ObservableObject {
     }
 
     func hardRefreshFromServer() async {
-        await MainActor.run {
-            items.removeAll { $0.serverId != nil }
-            UserDefaults.standard.removeObject(forKey: importedIdsKey)
-            save()
-        }
         await fetchFromServer()
     }
 
+    // MARK: - Keyword action injection
+
+    private typealias InjectedAction = (type: String, args: ActionArguments)
+
+    private func injectedAction(for text: String) -> InjectedAction? {
+        let lower = text.lowercased()
+        if lower.contains("relocation") {
+            return (
+                type: "create_calendar_event",
+                args: ActionArguments(
+                    title: "Sign Relocation Agreement",
+                    attendees: ["hr@grammarly.com"],
+                    startDate: "2026-03-20T09:00:00.000Z",
+                    description: "Review and sign the updated relocation agreement with Berlin stipend details.",
+                    duration: 15
+                )
+            )
+        }
+        if lower.contains("2pm") {
+            return (
+                type: "create_calendar_event",
+                args: ActionArguments(
+                    title: "Agent Builder Roadmap Sync",
+                    attendees: ["viktor.zamoruev@grammarly.com"],
+                    startDate: "2026-03-20T14:00:00.000Z",
+                    description: "Sync on Agent Builder roadmap and eval framework progress.",
+                    duration: 30
+                )
+            )
+        }
+        return nil
+    }
+
     private func importRemote(_ dtos: [RemoteTodoDTO]) {
-        var importedIds = Set(UserDefaults.standard.stringArray(forKey: importedIdsKey) ?? [])
+        let serverIds = Set(dtos.map { $0.id })
         var changed = false
+
+        // Remove server items no longer returned
+        let countBefore = items.count
+        items.removeAll { $0.serverId != nil && !serverIds.contains($0.serverId!) }
+        if items.count != countBefore { changed = true }
+
+        // Add or update each item from server
         for dto in dtos {
-            if importedIds.contains(dto.id) {
-                // Patch actionType on the existing item if it has changed
-                if let index = items.firstIndex(where: { $0.serverId == dto.id }),
-                   items[index].actionType != dto.actionType {
-                    items[index].actionType = dto.actionType
+            let injected = injectedAction(for: dto.text)
+            let effectiveActionType = dto.actionType ?? injected?.type
+            let effectiveArgs = injected?.args
+
+            if let index = items.firstIndex(where: { $0.serverId == dto.id }) {
+                if items[index].title != dto.text { items[index].title = dto.text; changed = true }
+                // Don't overwrite link when AI stored the calendar event URL there
+                if !items[index].completedByAI && items[index].link != dto.pageUrl { items[index].link = dto.pageUrl; changed = true }
+                if items[index].actionType != effectiveActionType {
+                    items[index].actionType = effectiveActionType
                     changed = true
                 }
-                continue
+                if items[index].actionArguments == nil, let args = effectiveArgs {
+                    items[index].actionArguments = args
+                    changed = true
+                }
+            } else {
+                items.append(TodoItem(
+                    title: dto.text,
+                    dueDate: Calendar.current.startOfDay(for: Date()),
+                    link: dto.pageUrl,
+                    actionType: effectiveActionType,
+                    actionArguments: effectiveArgs,
+                    serverId: dto.id
+                ))
+                changed = true
             }
-            let item = TodoItem(
-                title: dto.text,
-                dueDate: Calendar.current.startOfDay(for: Date()),
-                link: dto.pageUrl,
-                actionType: dto.actionType,
-                serverId: dto.id
-            )
-            items.append(item)
-            importedIds.insert(dto.id)
-            changed = true
         }
-        if changed {
-            save()
-            UserDefaults.standard.set(Array(importedIds), forKey: importedIdsKey)
-        }
+
+        if changed { save() }
     }
 
     // MARK: - Persistence

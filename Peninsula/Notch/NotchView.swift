@@ -32,6 +32,19 @@ struct NotchHoverView: View {
                         .padding(.horizontal, notchViewModel.cornerRadius / 2)
                         .offset(x: notchViewModel.abstractSize / 2, y: 0)
                         .frame(maxWidth: .infinity, maxHeight: notchViewModel.deviceNotchRect.height, alignment: Alignment(horizontal: .trailing, vertical: .center))
+                    } else if notchViewModel.status == .popping {
+                        let notchH = notchViewModel.deviceNotchRect.height
+                        HStack {
+                            Spacer()
+                            HStack(spacing: notchH / 8) {
+                                LiveView(notchViewModel: notchViewModel)
+                                TodoCounterBadge(notchHeight: notchH)
+                                    .padding(.trailing, 14)
+                            }
+                            .padding(.horizontal, notchViewModel.cornerRadius / 2)
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: notchH, alignment: .center)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                     }
                 }
             Group {
@@ -62,7 +75,7 @@ struct NotchHoverView: View {
                             alignment: .top
                         )
                         // Match DynamicView's horizontal offset so edges align
-                        .offset(x: notchViewModel.abstractSize / 2, y: 0)
+                        .offset(x: (notchViewModel.abstractSize - notchViewModel.leftAbstractSize) / 2, y: 0)
                 }
             }
             .zIndex(1)

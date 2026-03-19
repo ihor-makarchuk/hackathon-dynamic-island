@@ -31,7 +31,7 @@ struct TodoView: View {
     @State private var hasRefined: Bool = false
     @State private var toastMessage: String? = nil
     @State private var expandedItemId: UUID? = nil
-    @State private var isRefreshing = false
+
     @State private var agentConfirmItem: TodoItem? = nil
     @State private var agentModalPhase: AgentModalPhase = .confirming
     @State private var createdEventURL: URL? = nil
@@ -47,29 +47,7 @@ struct TodoView: View {
             case .idle:
                 // Existing content (unchanged)
                 VStack(spacing: 8) {
-                    HStack(spacing: 6) {
-                        DateCarouselView(selectedDate: $selectedDate)
-                        Button(action: {
-                            guard !isRefreshing else { return }
-                            isRefreshing = true
-                            Task {
-                                await store.hardRefreshFromServer()
-                                await MainActor.run { isRefreshing = false }
-                            }
-                        }) {
-                            if isRefreshing {
-                                ProgressView()
-                                    .scaleEffect(0.5)
-                                    .frame(width: 16, height: 16)
-                            } else {
-                                Image(systemName: "arrow.clockwise")
-                                    .font(.system(size: 12))
-                                    .foregroundColor(.white.opacity(0.5))
-                            }
-                        }
-                        .buttonStyle(.plain)
-                        .help("Refresh from server")
-                    }
+                    DateCarouselView(selectedDate: $selectedDate)
                     TodoInputView(store: store, selectedDate: selectedDate)
                     ScrollView(.vertical, showsIndicators: false) {
                         LazyVStack(spacing: 2) {

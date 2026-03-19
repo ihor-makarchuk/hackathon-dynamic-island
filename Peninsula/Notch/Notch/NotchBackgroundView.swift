@@ -52,7 +52,7 @@ struct NotchBackgroundView: View {
                 color: .black.opacity(([.opened, .popping].contains(notchViewModel.status)) ? 1 : 0),
                 radius: 16
             )
-            .offset(x: notchViewModel.abstractSize / 2, y: 0)
+            .offset(x: (notchViewModel.abstractSize - notchViewModel.leftAbstractSize) / 2, y: 0)
             .animation(
                 notchViewModel.status == .opened
                 ? notchViewModel.outerOnAnimation
